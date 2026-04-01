@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAM GTA — Workflows</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F0EEE9;
+    --ink: #111110;
+    --mid: #888580;
+    --line: #C8C4BC;
+    --line-light: #E0DDD8;
+
+    --cat-marketing:    #E07B39;
+    --cat-sales:        #3D8C5A;
+    --cat-onboarding:   #D94F3A;
+    --cat-member:       #3A6CD9;
+    --cat-training:     #2B8C88;
+    --cat-other:        #7B3AD9;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .site-header {
+    padding: 52px 64px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .logo {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+  .header-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 46px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.025em;
+  }
+  .header-sub {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--mid);
+    font-weight: 400;
+    max-width: 520px;
+    line-height: 1.6;
+  }
+
+  .key-bar {
+    margin: 32px 64px 0;
+    padding: 14px 22px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    display: flex;
+    gap: 28px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .key-bar-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+    flex-shrink: 0;
+    margin-right: 4px;
+  }
+  .key-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    color: var(--mid);
+    font-family: 'DM Mono', monospace;
+  }
+  .key-dot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; }
+  .key-dot.auto  { border: 1.5px solid var(--line); background: var(--bg); }
+  .key-dot.human { background: var(--ink); }
+
+  .divider {
+    margin: 36px 64px 0;
+    height: 1.5px;
+    background: var(--ink);
+  }
+
+  /* === ACCORDION LAYOUT === */
+  .accordion-wrapper {
+    padding: 44px 64px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .accordion-section {
+    border-bottom: 1px solid var(--line-light);
+    animation: fadeUp 0.45s ease both;
+  }
+  .accordion-section:first-child { border-top: 1px solid var(--line-light); }
+  .accordion-section:nth-child(1) { animation-delay: 0.04s; }
+  .accordion-section:nth-child(2) { animation-delay: 0.08s; }
+  .accordion-section:nth-child(3) { animation-delay: 0.12s; }
+  .accordion-section:nth-child(4) { animation-delay: 0.16s; }
+  .accordion-section:nth-child(5) { animation-delay: 0.20s; }
+
+  .accordion-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .accordion-header:hover {
+    background: rgba(0,0,0,0.02);
+  }
+
+  .accordion-accent {
+    width: 4px;
+    height: 32px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .accordion-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    flex: 1;
+  }
+
+  .accordion-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+
+  .accordion-chevron {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    color: var(--mid);
+  }
+  .accordion-section.open .accordion-chevron {
+    transform: rotate(180deg);
+  }
+
+  .accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .accordion-section.open .accordion-body {
+    max-height: 8000px;
+    transition: max-height 0.6s ease;
+  }
+
+  .accordion-content {
+    padding: 0 8px 32px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* Category color classes */
+  .cat-marketing .accordion-accent, .cat-marketing .accordion-title { color: var(--cat-marketing); }
+  .cat-marketing .accordion-accent { background: var(--cat-marketing); }
+  .cat-marketing .step.human { color: var(--cat-marketing); }
+
+  .cat-sales .accordion-accent, .cat-sales .accordion-title { color: var(--cat-sales); }
+  .cat-sales .accordion-accent { background: var(--cat-sales); }
+  .cat-sales .step.human { color: var(--cat-sales); }
+
+  .cat-onboarding .accordion-accent, .cat-onboarding .accordion-title { color: var(--cat-onboarding); }
+  .cat-onboarding .accordion-accent { background: var(--cat-onboarding); }
+  .cat-onboarding .step.human { color: var(--cat-onboarding); }
+
+  .cat-member .accordion-accent, .cat-member .accordion-title { color: var(--cat-member); }
+  .cat-member .accordion-accent { background: var(--cat-member); }
+  .cat-member .step.human { color: var(--cat-member); }
+
+  .cat-training .accordion-accent, .cat-training .accordion-title { color: var(--cat-training); }
+  .cat-training .accordion-accent { background: var(--cat-training); }
+  .cat-training .step.human { color: var(--cat-training); }
+
+  .cat-other .accordion-accent, .cat-other .accordion-title { color: var(--cat-other); }
+  .cat-other .accordion-accent { background: var(--cat-other); }
+  .cat-other .step.human { color: var(--cat-other); }
+
+  /* === WORKFLOW CARDS === */
+  .workflow {
+    padding: 20px 24px;
+    border: 1px solid var(--line-light);
+    border-radius: 6px;
+    background: white;
+  }
+
+  .workflow-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .workflow-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--mid);
+    border: none;
+    background: none;
+    outline: none;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    border-radius: 3px;
+    cursor: text;
+    min-width: 0;
+    flex: 1;
+  }
+  .workflow-title:hover {
+    background: rgba(0,0,0,0.04);
+  }
+  .workflow-title:focus {
+    background: white;
+    box-shadow: 0 0 0 1.5px var(--line);
+  }
+
+  .owner-select {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+    background: none;
+    border: 1px solid var(--line-light);
+    border-radius: 3px;
+    padding: 2px 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='8' height='5' viewBox='0 0 8 5' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%23888580' stroke-width='1.2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    padding-right: 14px;
+  }
+  .owner-select:hover { border-color: var(--mid); }
+  .owner-select:focus { outline: none; box-shadow: 0 0 0 1.5px var(--line); }
+  .owner-select.auto-owner { color: var(--mid); background-color: rgba(136,133,128,0.08); border-color: var(--line); }
+
+  .step-owner.auto-owner { color: var(--mid); background-color: rgba(136,133,128,0.08); border-color: var(--line); }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .steps::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 10px;
+    bottom: 10px;
+    width: 1px;
+    background: var(--line-light);
+    z-index: 0;
+  }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 4px 0;
+    position: relative;
+    z-index: 1;
+    cursor: grab;
+    user-select: none;
+    transition: background 0.15s, opacity 0.15s;
+    border-radius: 4px;
+    margin: 0 -4px;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .step:hover {
+    background: rgba(0,0,0,0.025);
+  }
+  .step.dragging {
+    opacity: 0.4;
+  }
+  .step.drag-over-top {
+    box-shadow: inset 0 2px 0 0 var(--ink);
+  }
+  .step.drag-over-bottom {
+    box-shadow: inset 0 -2px 0 0 var(--ink);
+  }
+
+  .step-owner {
+    font-family: 'DM Mono', monospace;
+    font-size: 7px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mid);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 1px 3px;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-left: auto;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='6' height='4' viewBox='0 0 6 4' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l2 2 2-2' stroke='%23888580' stroke-width='1'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 2px center;
+    padding-right: 11px;
+    opacity: 0;
+    transition: opacity 0.15s, border-color 0.15s;
+  }
+  .step:hover .step-owner { opacity: 1; }
+  .step-owner:focus { opacity: 1; outline: none; border-color: var(--line); }
+  .step-owner.has-value { opacity: 1; border-color: var(--line-light); }
+
+  .step-arrows {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    flex-shrink: 0;
+    padding-left: 2px;
+  }
+  .step:hover .step-arrows { display: flex; }
+  .step-arrow {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    font-size: 10px;
+    color: var(--mid);
+    opacity: 0.5;
+    transition: opacity 0.15s;
+  }
+  .step-arrow:hover { opacity: 1; }
+
+  .step-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 2px;
+    font-size: 11px;
+    color: var(--mid);
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+    flex-shrink: 0;
+  }
+  .step:hover .step-delete { opacity: 0.5; }
+  .step-delete:hover { opacity: 1 !important; color: #D94F3A; }
+
+  .add-step-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 6px;
+    padding: 4px 8px;
+    background: none;
+    border: 1px dashed var(--line);
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--mid);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .add-step-btn:hover { border-color: var(--mid); color: var(--ink); }
+
+  .workflow-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--mid);
+    opacity: 0.4;
+    transition: opacity 0.15s, color 0.15s;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+  .workflow-delete:hover { opacity: 1; color: #D94F3A; }
+
+  .add-workflow-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 14px;
+    background: none;
+    border: 1.5px dashed var(--line);
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    width: 100%;
+  }
+  .add-workflow-btn:hover { border-color: var(--mid); color: var(--ink); }
+
+  .step-dot {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+    border: 1.5px solid var(--line);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step-dot-inner {
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+  .step.human .step-dot {
+    border-color: currentColor;
+    background: currentColor;
+  }
+  .step.human .step-dot-inner { background: white; }
+
+  .step-text {
+    font-size: 11.5px;
+    line-height: 1.55;
+    font-weight: 400;
+    color: var(--ink);
+    flex: 1;
+    min-width: 0;
+    cursor: text;
+    border-radius: 3px;
+    padding: 1px 3px;
+    margin: -1px -3px;
+    outline: none;
+  }
+  .step-text:hover { background: rgba(0,0,0,0.04); }
+  .step-text:focus { background: white; box-shadow: 0 0 0 1.5px var(--line); }
+  .step.human .step-text { font-weight: 500; }
+
+  .step.human .step-text::after {
+    content: ' \1F464';
+    font-size: 9px;
+    opacity: 0.65;
+  }
+
+  footer {
+    padding: 28px 64px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--mid);
+  }
+
+  .bottom-bar {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .bar-btn {
+    background: var(--ink);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .bar-btn:hover { background: #333; }
+  .bar-btn:active { background: #555; }
+  .bar-btn.outline {
+    background: var(--bg);
+    color: var(--ink);
+    border: 1.5px solid var(--line);
+  }
+  .bar-btn.outline:hover { border-color: var(--mid); }
+
+  .save-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--ink);
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.25s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .save-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 1200px) {
+    .site-header, .divider, footer { padding-left: 32px; padding-right: 32px; }
+    .key-bar { margin-left: 32px; margin-right: 32px; }
+    .accordion-wrapper { padding: 32px 32px 60px; }
+  }
+  @media (max-width: 700px) {
+    .header-title { font-size: 30px; }
+    .accordion-wrapper { padding: 24px 16px 40px; }
+    .site-header, .divider, footer { padding-left: 16px; padding-right: 16px; }
+    .key-bar { margin-left: 16px; margin-right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <span class="logo">BAM GTA — byanymeanstoronto.ca</span>
+  <h1 class="header-title">End-to-End Workflows</h1>
+  <p class="header-sub">All operational flows across the academy. <strong>Filled dots = human action required.</strong> Click a category to expand it. <em>Click titles to edit. Drag steps to reorder. Assign owners on the right.</em></p>
+</header>
+
+<div class="key-bar">
+  <span class="key-bar-title">Key —</span>
+  <div class="key-item"><div class="key-dot auto"></div> Automated / system</div>
+  <div class="key-item"><div class="key-dot human"></div> Human step &#128100;</div>
+</div>
+
+<div class="divider"></div>
+
+<div class="accordion-wrapper">
+
+  <!-- MARKETING -->
+  <div class="accordion-section cat-marketing" data-category="marketing">
+    <div class="accordion-header">
+      <div class="accordion-accent"></div>
+      <div class="accordion-title">Marketing</div>
+      <span class="accordion-count">3 flows</span>
+      <svg class="accordion-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 8 10 13 15 8"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+
+        <div class="workflow" data-wf-id="lead-generation">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Lead Generation">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Run Meta / Instagram ad campaign</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent clicks → landing page</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent fills out free trial form</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">GHL contact created + tagged</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Automated welcome SMS fires</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="referral-flow">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Referral Flow">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Existing member refers a friend</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Staff logs referral extension ticket</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Add 4-week extension in scheduling app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Confirmation sent to parent</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="social-content">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Social / Content">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Capture training footage at session</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Edit + post to Instagram / TikTok</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Reply to DMs / comments</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <button class="add-workflow-btn">+ New workflow</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALES -->
+  <div class="accordion-section cat-sales" data-category="sales">
+    <div class="accordion-header">
+      <div class="accordion-accent"></div>
+      <div class="accordion-title">Sales</div>
+      <span class="accordion-count">4 flows</span>
+      <svg class="accordion-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 8 10 13 15 8"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+
+        <div class="workflow" data-wf-id="texting-leads">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Texting Leads">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">New lead comes in via ad / form</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Text lead within 5 min of opt-in</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Qualify: age, location, goals</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Book free trial session</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Confirmation + reminder auto-sent</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="free-trial-member">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Free Trial → Member">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Staff books trial session</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Reminder sent 24h before</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Coach runs trial session</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Follow up with plan options</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent selects plan</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Staff activates in scheduling app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Stripe subscription activated</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Welcome email + login sent</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="inbound-inquiry">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Inbound Inquiry">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent DMs / calls / emails</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Staff qualifies + answers questions</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Book trial or direct-to-member</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="coupons">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Coupons">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Create coupon in Stripe</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Share code with parent</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Apply at checkout / membership setup</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Stripe applies discount on next charge</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <button class="add-workflow-btn">+ New workflow</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONBOARDING -->
+  <div class="accordion-section cat-onboarding" data-category="onboarding">
+    <div class="accordion-header">
+      <div class="accordion-accent"></div>
+      <div class="accordion-title">Onboarding</div>
+      <span class="accordion-count">1 flow</span>
+      <svg class="accordion-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 8 10 13 15 8"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+
+        <div class="workflow" data-wf-id="onboarding">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Onboarding">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent enrolls → activate in scheduling app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Set correct plan + group level</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Send welcome message to parent</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Stripe subscription activates</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Add to member tracker (status: active)</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <button class="add-workflow-btn">+ New workflow</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEMBER MANAGEMENT -->
+  <div class="accordion-section cat-member" data-category="member">
+    <div class="accordion-header">
+      <div class="accordion-accent"></div>
+      <div class="accordion-title">Member Management</div>
+      <span class="accordion-count">8 flows</span>
+      <svg class="accordion-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 8 10 13 15 8"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+
+        <div class="workflow" data-wf-id="changing-memberships">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Changing Memberships">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent requests plan change</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Submit ticket in Asana</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Update plan in scheduling app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Update Stripe subscription</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Update member tracker</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Confirm with parent</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="membership-pause">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Membership Pause">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent requests pause</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Submit Pause ticket (start + end date)</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Pause billing + scheduling in app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Auto-resume on end date</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Verify resume + notify parent</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="cancellation">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Cancellation">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent requests cancel</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Submit Cancel ticket in Asana</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Cancel Stripe subscription</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Remove from scheduling app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Update tracker → cancelled</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Cancellation confirmation sent</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="credit-add">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Credit Add">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent reports missing credits</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Submit "Other" ticket in Asana</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Manually add credits in scheduling app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Confirm with parent</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="payment-card-update">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Payment Card Update">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent's card fails / expires</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Submit "Other" ticket</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Send Stripe card update link</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent updates card</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Stripe retries charge</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="refund">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Refund">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Charge dispute or refund warranted</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Submit Refund ticket in Asana</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Issue refund via Stripe dashboard</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Notify parent + update tracker</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="plan-change">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Plan Change">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent requests upgrade / downgrade</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Update plan in scheduling app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Adjust Stripe subscription price</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Confirm + update tracker</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="monthly-charge">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Monthly Charge">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Stripe charges on billing date</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Receipt emailed automatically</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Staff monitors failed charges</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <button class="add-workflow-btn">+ New workflow</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRAINING -->
+  <div class="accordion-section cat-training" data-category="training">
+    <div class="accordion-header">
+      <div class="accordion-accent"></div>
+      <div class="accordion-title">Training</div>
+      <span class="accordion-count">5 flows</span>
+      <svg class="accordion-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 8 10 13 15 8"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+
+        <div class="workflow" data-wf-id="session-scheduling">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Session Scheduling">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Staff publishes weekly schedule</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Parent books session via app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Confirmation + reminder automated</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Coach takes attendance</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Credit deducted (if applicable)</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="player-level-check">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Player Level Check">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Coach evaluates player group level</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Submit "Other" ticket if change needed</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Update group in scheduling app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Notify parent of group change</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="adapt-competitive">
+          <div class="workflow-header">
+            <input class="workflow-title" value="ADAPT / Competitive Team">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Coach selects players for ADAPT Academy</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Notify parent + confirm commitment</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Adjust membership in scheduling app</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Schedule practices (Linbrook / Mildred's)</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="at-risk-member">
+          <div class="workflow-header">
+            <input class="workflow-title" value="At-Risk Member">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Staff notices low attendance / pause pattern</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Outreach call / text from coach or staff</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Offer schedule change or credit</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Log outcome in GHL + tracker</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="re-engagement">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Re-engagement (Post-Cancel)">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Identify cancelled members to re-engage</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Personalized outreach (text / call)</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Offer re-enroll incentive if applicable</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Re-activate via Sales → Member flow</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <button class="add-workflow-btn">+ New workflow</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OTHER -->
+  <div class="accordion-section cat-other" data-category="other">
+    <div class="accordion-header">
+      <div class="accordion-accent"></div>
+      <div class="accordion-title">Other</div>
+      <span class="accordion-count">2 flows</span>
+      <svg class="accordion-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 8 10 13 15 8"/></svg>
+    </div>
+    <div class="accordion-body">
+      <div class="accordion-content">
+
+        <div class="workflow" data-wf-id="expectations">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Expectations">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Know all active member plans + statuses</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Monitor Asana ticket queue daily</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Complete all tickets within 24h</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Keep member tracker up to date</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <div class="workflow" data-wf-id="products">
+          <div class="workflow-header">
+            <input class="workflow-title" value="Products">
+            <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+          </div>
+          <div class="steps">
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Know current offerings + prices</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Apply coupons / promos when requested</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+            <div class="step human"><div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">Ensure correct product in Stripe</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button></div>
+          </div>
+          <button class="add-step-btn">+ Add step</button>
+        </div>
+
+        <button class="add-workflow-btn">+ New workflow</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span class="footer-label">BAM GTA — byanymeanstoronto.ca</span>
+  <span class="footer-label">&#128100; = requires a human</span>
+</footer>
+
+<div class="bottom-bar">
+  <button class="bar-btn" onclick="saveState()">Save</button>
+  <button class="bar-btn outline" onclick="exportJSON()">Export</button>
+  <button class="bar-btn outline" onclick="document.getElementById('importFile').click()">Import</button>
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
+</div>
+<div class="save-toast" id="saveToast">Changes saved</div>
+
+<script>
+// === ACCORDION TOGGLE ===
+document.querySelectorAll('.accordion-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.closest('.accordion-section').classList.toggle('open');
+  });
+});
+
+// === DRAG & DROP for steps ===
+let dragEl = null;
+let dragSteps = null;
+
+// === SAVE / LOAD STATE ===
+const STORAGE_KEY = 'bam-gta-workflows';
+const FIREBASE_URL = 'https://bam-gta-workflows-default-rtdb.firebaseio.com/workflows.json';
+
+function gatherState() {
+  const data = {};
+  document.querySelectorAll('.accordion-section').forEach(section => {
+    const category = section.dataset.category;
+    const workflows = [];
+    section.querySelectorAll('.workflow').forEach(wf => {
+      const wfId = wf.dataset.wfId || '';
+      const titleEl = wf.querySelector('.workflow-title');
+      const title = titleEl ? titleEl.value : '';
+      const owner = wf.querySelector('.owner-select')?.value || '';
+      const steps = [];
+      wf.querySelectorAll('.step').forEach(s => {
+        steps.push({
+          text: s.querySelector('.step-text')?.textContent || '',
+          human: s.classList.contains('human'),
+          stepOwner: s.querySelector('.step-owner')?.value || ''
+        });
+      });
+      workflows.push({ wfId, title, owner, steps });
+    });
+    data[category] = workflows;
+  });
+  return data;
+}
+
+function saveState() {
+  const data = gatherState();
+  // Save to localStorage as cache
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  // Save to Firebase
+  fetch(FIREBASE_URL, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+    headers: { 'Content-Type': 'application/json' }
+  }).then(() => showToast('Saved'))
+    .catch(() => showToast('Saved locally (offline)'));
+}
+
+function applyData(data) {
+  if (!data || typeof data !== 'object') return;
+  if (Array.isArray(data)) {
+    const workflows = document.querySelectorAll('.workflow');
+    data.forEach((wfData, i) => {
+      if (!workflows[i]) return;
+      restoreWorkflow(workflows[i], wfData);
+    });
+    return;
+  }
+  document.querySelectorAll('.accordion-section').forEach(section => {
+    const category = section.dataset.category;
+    const catData = data[category];
+    if (!catData) return;
+    const content = section.querySelector('.accordion-content');
+    const addBtn = content.querySelector('.add-workflow-btn');
+    const existingWfs = Array.from(section.querySelectorAll('.workflow'));
+
+    catData.forEach((wfData, i) => {
+      let wf;
+      if (existingWfs[i]) {
+        wf = existingWfs[i];
+      } else {
+        wf = createWorkflowHTML(wfData.title || 'Untitled');
+        content.insertBefore(wf, addBtn);
+        initListenersOn(wf);
+      }
+      restoreWorkflow(wf, wfData);
+    });
+    for (let i = catData.length; i < existingWfs.length; i++) {
+      existingWfs[i].remove();
+    }
+    updateFlowCount(section);
+  });
+}
+
+function loadState() {
+  // Try Firebase first, fall back to localStorage
+  fetch(FIREBASE_URL)
+    .then(r => r.json())
+    .then(data => {
+      if (data) {
+        applyData(data);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } else {
+        // Firebase empty, try localStorage
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) applyData(JSON.parse(raw));
+      }
+    })
+    .catch(() => {
+      // Offline — use localStorage
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try { applyData(JSON.parse(raw)); } catch(e) {}
+      }
+    });
+}
+
+function restoreWorkflow(wf, wfData) {
+  // Restore title
+  const titleEl = wf.querySelector('.workflow-title');
+  if (titleEl && wfData.title) {
+    titleEl.value = wfData.title;
+  }
+  // Restore wfId
+  if (wfData.wfId) wf.dataset.wfId = wfData.wfId;
+  // Restore owner
+  const ownerEl = wf.querySelector('.owner-select');
+  if (ownerEl && wfData.owner) {
+    ownerEl.value = wfData.owner;
+    ownerEl.classList.toggle('auto-owner', isAuto(wfData.owner));
+  }
+  // Rebuild steps from saved data
+  const stepsContainer = wf.querySelector('.steps');
+  if (stepsContainer && wfData.steps) {
+    stepsContainer.innerHTML = '';
+    wfData.steps.forEach(sd => {
+      const step = createStepHTML(sd.text || '', sd.human);
+      stepsContainer.appendChild(step);
+      const stepOwnerEl = step.querySelector('.step-owner');
+      if (stepOwnerEl && sd.stepOwner) {
+        stepOwnerEl.value = sd.stepOwner;
+        stepOwnerEl.classList.toggle('has-value', !!sd.stepOwner);
+        stepOwnerEl.classList.toggle('auto-owner', isAuto(sd.stepOwner));
+      }
+      initListenersOn(step);
+    });
+  }
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('saveToast');
+  if (msg) toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.classList.remove('show'), 1500);
+}
+
+function isAuto(val) { return val === 'Automated' || val === 'Auto' || val === 'Parent'; }
+
+// === CREATE STEP HTML ===
+function createStepHTML(text, isHuman) {
+  const step = document.createElement('div');
+  step.className = 'step' + (isHuman ? ' human' : '');
+  step.innerHTML = `<div class="step-dot"><div class="step-dot-inner"></div></div><div class="step-text" contenteditable="true">${text}</div><select class="step-owner"><option value="">—</option><option>Fil</option><option>Zoran</option><option>Sergio</option><option>Adrian</option><option>Staff</option><option>Parent</option><option>Auto</option></select><div class="step-arrows"><button class="step-arrow" data-dir="up">&#9650;</button><button class="step-arrow" data-dir="down">&#9660;</button></div><button class="step-delete" title="Delete step">&#10005;</button>`;
+  return step;
+}
+
+// === CREATE WORKFLOW HTML ===
+function createWorkflowHTML(title) {
+  const wf = document.createElement('div');
+  wf.className = 'workflow';
+  wf.dataset.wfId = 'wf-' + Date.now();
+  wf.innerHTML = `<div class="workflow-header">
+    <input class="workflow-title" value="${title || 'New Workflow'}">
+    <button class="workflow-delete" title="Delete workflow">&#10005;</button>
+  </div>
+  <div class="steps"></div>
+  <button class="add-step-btn">+ Add step</button>`;
+  return wf;
+}
+
+// === INIT ALL LISTENERS ON AN ELEMENT SCOPE ===
+function initListenersOn(scope) {
+  // Drag and drop
+  scope.querySelectorAll('.step').forEach(step => {
+    step.setAttribute('draggable', 'true');
+    step.addEventListener('dragstart', e => {
+      dragEl = step;
+      dragSteps = step.closest('.steps');
+      step.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    step.addEventListener('dragend', () => {
+      step.classList.remove('dragging');
+      document.querySelectorAll('.drag-over-top, .drag-over-bottom').forEach(el => {
+        el.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+      dragEl = null;
+      dragSteps = null;
+      saveState();
+    });
+    step.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (!dragEl || dragEl === step || step.closest('.steps') !== dragSteps) return;
+      e.dataTransfer.dropEffect = 'move';
+      const rect = step.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      step.classList.remove('drag-over-top', 'drag-over-bottom');
+      if (e.clientY < mid) step.classList.add('drag-over-top');
+      else step.classList.add('drag-over-bottom');
+    });
+    step.addEventListener('dragleave', () => {
+      step.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+    step.addEventListener('drop', e => {
+      e.preventDefault();
+      if (!dragEl || dragEl === step || step.closest('.steps') !== dragSteps) return;
+      const rect = step.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      const parent = step.parentNode;
+      if (e.clientY < mid) parent.insertBefore(dragEl, step);
+      else parent.insertBefore(dragEl, step.nextSibling);
+      step.classList.remove('drag-over-top', 'drag-over-bottom');
+      saveState();
+    });
+  });
+
+  // Arrows
+  scope.querySelectorAll('.step-arrow').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const step = btn.closest('.step');
+      const steps = step.closest('.steps');
+      const dir = btn.dataset.dir;
+      if (dir === 'up' && step.previousElementSibling) steps.insertBefore(step, step.previousElementSibling);
+      else if (dir === 'down' && step.nextElementSibling) steps.insertBefore(step.nextElementSibling, step);
+      saveState();
+    });
+  });
+
+  // Title listeners
+  scope.querySelectorAll('.workflow-title').forEach(el => {
+    el.addEventListener('change', saveState);
+    el.addEventListener('blur', saveState);
+  });
+
+  // Owner listeners
+  scope.querySelectorAll('.owner-select').forEach(el => {
+    el.addEventListener('change', () => {
+      el.classList.toggle('auto-owner', isAuto(el.value));
+      saveState();
+    });
+  });
+  scope.querySelectorAll('.step-owner').forEach(el => {
+    el.addEventListener('change', () => {
+      el.classList.toggle('has-value', !!el.value);
+      el.classList.toggle('auto-owner', isAuto(el.value));
+      const step = el.closest('.step');
+      if (isAuto(el.value)) step.classList.remove('human');
+      else if (el.value) step.classList.add('human');
+      saveState();
+    });
+    el.addEventListener('mousedown', e => e.stopPropagation());
+  });
+
+  // Step text listeners
+  scope.querySelectorAll('.step-text').forEach(el => {
+    el.addEventListener('blur', saveState);
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+    });
+    el.addEventListener('mousedown', e => e.stopPropagation());
+  });
+
+  // Step delete
+  scope.querySelectorAll('.step-delete').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const step = btn.closest('.step');
+      if (confirm('Delete this step?')) {
+        step.remove();
+        saveState();
+      }
+    });
+  });
+
+  // Workflow delete
+  scope.querySelectorAll('.workflow-delete').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const wf = btn.closest('.workflow');
+      const title = wf.querySelector('.workflow-title')?.value || 'this workflow';
+      if (confirm('Delete "' + title + '" and all its steps?')) {
+        const section = wf.closest('.accordion-section');
+        wf.remove();
+        updateFlowCount(section);
+        saveState();
+      }
+    });
+  });
+
+  // Add step buttons
+  scope.querySelectorAll('.add-step-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const wf = btn.closest('.workflow');
+      const stepsContainer = wf.querySelector('.steps');
+      const newStep = createStepHTML('New step', false);
+      stepsContainer.appendChild(newStep);
+      initListenersOn(newStep);
+      newStep.querySelector('.step-text').focus();
+      saveState();
+    });
+  });
+
+  // Add workflow buttons
+  scope.querySelectorAll('.add-workflow-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const content = btn.closest('.accordion-content');
+      const section = btn.closest('.accordion-section');
+      const newWf = createWorkflowHTML('');
+      content.insertBefore(newWf, btn);
+      initListenersOn(newWf);
+      // Also init the add-step button inside the new workflow
+      newWf.querySelector('.workflow-title').focus();
+      newWf.querySelector('.workflow-title').select();
+      updateFlowCount(section);
+      saveState();
+    });
+  });
+}
+
+function updateFlowCount(section) {
+  const count = section.querySelectorAll('.workflow').length;
+  const countEl = section.querySelector('.accordion-count');
+  if (countEl) countEl.textContent = count + ' flow' + (count !== 1 ? 's' : '');
+}
+
+// Initialize everything
+// === EXPORT / IMPORT ===
+function exportJSON() {
+  saveState();
+  const raw = localStorage.getItem(STORAGE_KEY);
+  const blob = new Blob([raw || '{}'], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bam-gta-workflows-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function importJSON(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      // Also push to Firebase
+      fetch(FIREBASE_URL, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' }
+      }).finally(() => location.reload());
+    } catch(e) {
+      alert('Invalid JSON file.');
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+initListenersOn(document);
+loadState();
+</script>
+
+</body>
+</html>
