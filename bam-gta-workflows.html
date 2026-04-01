@@ -274,6 +274,19 @@
 
   .step-owner.auto-owner { color: var(--mid); background-color: rgba(136,133,128,0.08); border-color: var(--line); }
 
+  /* Sergio-owned steps: red highlight */
+  .step.sergio-owned .step-dot { border-color: #D94F3A; background: #D94F3A; }
+  .step.sergio-owned .step-dot-inner { background: white; }
+  .step.sergio-owned .step-text { color: #D94F3A; font-weight: 500; }
+  .step.sergio-owned .step-owner { color: #D94F3A; border-color: #D94F3A; opacity: 1; }
+
+  /* Workflow containing Sergio steps: gloomy overlay */
+  .workflow.has-sergio {
+    background: #e8e6e1;
+    border-color: var(--line);
+  }
+  .workflow.has-sergio .workflow-title { color: #999; }
+
   .steps {
     display: flex;
     flex-direction: column;
@@ -1160,10 +1173,12 @@ function restoreWorkflow(wf, wfData) {
         stepOwnerEl.value = sd.stepOwner;
         stepOwnerEl.classList.toggle('has-value', !!sd.stepOwner);
         stepOwnerEl.classList.toggle('auto-owner', isAuto(sd.stepOwner));
+        step.classList.toggle('sergio-owned', sd.stepOwner === 'Sergio');
       }
       initListenersOn(step);
     });
   }
+  updateSergioWorkflow(wf);
 }
 
 function showToast(msg) {
@@ -1175,6 +1190,12 @@ function showToast(msg) {
 }
 
 function isAuto(val) { return val === 'Automated' || val === 'Auto' || val === 'Parent'; }
+
+function updateSergioWorkflow(wf) {
+  if (!wf) return;
+  const hasSergio = !!wf.querySelector('.step.sergio-owned');
+  wf.classList.toggle('has-sergio', hasSergio);
+}
 
 // === CREATE STEP HTML ===
 function createStepHTML(text, isHuman) {
@@ -1277,6 +1298,9 @@ function initListenersOn(scope) {
       const step = el.closest('.step');
       if (isAuto(el.value)) step.classList.remove('human');
       else if (el.value) step.classList.add('human');
+      // Sergio styling
+      step.classList.toggle('sergio-owned', el.value === 'Sergio');
+      updateSergioWorkflow(step.closest('.workflow'));
       saveState();
     });
     el.addEventListener('mousedown', e => e.stopPropagation());
