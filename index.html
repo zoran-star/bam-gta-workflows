@@ -274,18 +274,7 @@
 
   .step-owner.auto-owner { color: var(--mid); background-color: rgba(136,133,128,0.08); border-color: var(--line); }
 
-  /* Sergio-owned steps: red highlight */
-  .step.sergio-owned .step-dot { border-color: #D94F3A; background: #D94F3A; }
-  .step.sergio-owned .step-dot-inner { background: white; }
-  .step.sergio-owned .step-text { color: #D94F3A; font-weight: 500; }
-  .step.sergio-owned .step-owner { color: #D94F3A; border-color: #D94F3A; opacity: 1; }
-
-  /* Workflow containing Sergio steps: gloomy overlay */
-  .workflow.has-sergio {
-    background: #e8e6e1;
-    border-color: var(--line);
-  }
-  .workflow.has-sergio .workflow-title { color: #999; }
+  /* Sergio-owned steps: no special styling */
 
   .steps {
     display: flex;
@@ -397,7 +386,7 @@
   .fc-toggle.active { opacity: 1; background: #2E7D32; color: white; border-color: #2E7D32; }
 
   .step.fc-tagged { outline: 2px solid #4CAF50; outline-offset: -1px; border-radius: 4px; }
-  .step.fc-tagged.sergio-owned { outline-color: #4CAF50; }
+  /* removed sergio fc override */
 
   .step-delete {
     background: none;
